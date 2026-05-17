@@ -207,21 +207,95 @@
         margin-left: 0;
       }
     }
-    
+    .sidebar {
+  width: 240px;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-color);
+  padding: 20px 0;
+  position: fixed;
+  height: 100vh;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 24px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  padding: 15px 25px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s, padding-left 0.2s;
+}
+
+.sidebar ul li:hover,
+.sidebar ul li.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding-left: 30px;
+}
+
+.sidebar ul li i {
+  min-width: 20px;
+  font-size: 16px;
+}
+
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  font-size: 18px;
+  border-radius: 6px;
+  z-index: 1001;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    left: -240px;
+  }
+
+  .sidebar.show {
+    left: 0;
+  }
+
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .main {
+    margin-left: 0;
+    padding-top: 60px;
+  }
+}
+
   </style>
   
 </head>
 <body>
 
   <div class="sidebar">
-    <h2><i class="fas fa-user-cog"></i> Admin</h2>
+    <h2><i class="fas fa-coffee"></i> SmartCafe</h2>
     <ul>
-        <li onclick="location.href='/'"><i class="fas fa-home"></i> Dashboard</li>
-        <li onclick="location.href='/User'">
-          <i class="fas fa-users"></i> Users
-        </li>      
-        <li onclick="location.href='/Product'"><i class="fas fa-box"></i> Product</li>
-      
+       <li onclick="location.href='/'"><i class="fas fa-home"></i> Dashboard</li>
+        <li onclick="location.href='/User'"><i class="fas fa-users"></i> Users</li>      
+        <li onclick="location.href='/Product'" class="active"><i  class="fas fa-box"></i> Product</li>
+        <li onclick="location.href='/Invoice'"><i class="fas fa-file-invoice"></i> Invoices</li>
+      <li onclick="location.href='/Pos'"><i class="fas fa-solid fa-store"></i> POS</li>
         <li onclick="location.href='/Login'"><i class="fas fa-sign-out-alt"></i> Logout</li>
     </ul>
   </div>
@@ -299,14 +373,14 @@
 
      
       <label>Category</label>
-      <select name="cat_id" required>
-        <option value="" disabled selected>Select Category</option>
-        <option value="Ice">Ice</option>
-        <option value="Hot">Hot</option>
-        <option value="Fapper">Fapper</option>
-        <option value="Tea">Tea</option>
-        <option value="Topping">Topping</option>
-      </select>
+     <select name="cat_id" required>
+  <option value="" disabled selected>Select Category</option>
+  <option value="1">Ice</option>
+  <option value="2">Hot</option>
+  <option value="3">Frappe</option>
+  <option value="4">Topping</option>
+</select>
+
 
       
       <button type="submit" style="margin-top: 15px;">Save Product</button>
@@ -339,11 +413,10 @@
       <label>Category</label>
       <select name="cat_id" id="editCat" required>
         <option value="" disabled>Select Category</option>
-        <option value="Ice">Ice</option>
-        <option value="Hot">Hot</option>
-        <option value="Fapper">Fapper</option>
-        <option value="Tea">Tea</option>
-        <option value="Topping">Topping</option>
+        <option value="1">Ice</option>
+        <option value="2">Hot</option>
+        <option value="3">Fapper</option>
+        <option value="4">Topping</option>
       </select>
 
       <button type="submit" style="margin-top: 15px;">Update Product</button>
@@ -436,6 +509,19 @@
     const mode = document.body.classList.contains("dark-mode") ? "dark" : "light";
     localStorage.setItem("mode", mode);
   }
+</script>
+<script>
+  function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('show');
+  }
+
+  // Add active class to current menu item
+  document.querySelectorAll('.sidebar ul li').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar ul li').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
 </script>
 
 

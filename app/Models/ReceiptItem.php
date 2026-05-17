@@ -2,25 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ReceiptItem extends Model
 {
-     protected $fillable = [
-        'receipt_id',
-        'product_id',
-        'quantity',
-        'price',
-        'subtotal',
-    ];
-
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
+    protected $fillable = ['product_name', 'quantity', 'price'];
 
     public function receipt()
     {
         return $this->belongsTo(Receipt::class);
     }
+    
 }

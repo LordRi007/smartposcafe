@@ -38,6 +38,7 @@
       transition: background 0.3s, color 0.3s;
     }
 
+    /* Sidebar styles */
     .sidebar {
       width: 240px;
       background-color: var(--sidebar-bg);
@@ -45,11 +46,15 @@
       padding: 20px 0;
       position: fixed;
       height: 100vh;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      left: 0;
     }
 
     .sidebar h2 {
       text-align: center;
       margin-bottom: 30px;
+      font-size: 24px;
     }
 
     .sidebar ul {
@@ -61,19 +66,44 @@
       padding: 15px 25px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, padding-left 0.2s;
     }
 
-    .sidebar ul li:hover {
-      background-color: rgba(255,255,255,0.1);
+    .sidebar ul li:hover,
+    .sidebar ul li.active {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding-left: 30px;
     }
 
+    .sidebar ul li i {
+      min-width: 20px;
+      font-size: 16px;
+    }
+
+    /* Sidebar toggle button */
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 12px;
+      font-size: 18px;
+      border-radius: 6px;
+      z-index: 1001;
+      cursor: pointer;
+    }
+
+    /* Main content styles */
     .main {
       margin-left: 240px;
       flex: 1;
       padding: 20px;
+      transition: margin-left 0.3s ease;
     }
 
     .topbar {
@@ -131,34 +161,41 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 768px) {
       .sidebar {
-        display: none;
+        left: -240px;
       }
+
+      .sidebar.show {
+        left: 0;
+      }
+
+      .sidebar-toggle {
+        display: block;
+      }
+
       .main {
         margin-left: 0;
+        padding-top: 60px;
       }
     }
   </style>
 </head>
 <body>
-    <script>
-        // Apply the saved theme mode
-        if (localStorage.getItem("mode") === "dark") {
-          document.body.classList.add("dark-mode");
-        }
-      </script>
-      
+  <!-- Sidebar toggle button for mobile -->
+  <button class="sidebar-toggle" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+  </button>
+
   <div class="sidebar">
-    <h2><i class="fas fa-user-cog"></i> Admin</h2>
+    <h2><i class="fas fa-coffee"></i> SmartCafe</h2>
     <ul>
-      <li onclick="location.href='/'"><i class="fas fa-home"></i> Dashboard</li>
-      <li onclick="location.href='/User'">
-        <i class="fas fa-users"></i> Users
-      </li>      
+      <li onclick="location.href='/'" class="active"><i class="fas fa-home"></i> Dashboard</li>
+      <li onclick="location.href='/User'"><i class="fas fa-users"></i> Users</li>      
       <li onclick="location.href='/Product'"><i class="fas fa-box"></i> Product</li>
-    
-      <li onclick="location.href='/Login'"><i class="fas fa-sign-out-alt"></i> Logout</li>
+      <li onclick="location.href='/Invoice'"><i class="fas fa-file-invoice"></i> Invoices</li>
+      <li onclick="location.href='/Pos'"><i class="fas fa-store"></i> POS</li>
+      <li onclick="location.href='/logout'"><i class="fas fa-sign-out-alt"></i> Logout</li>
     </ul>
   </div>
 
@@ -166,28 +203,29 @@
     <div class="topbar">
       <h1>Admin Dashboard</h1>
       <button class="dark-toggle" onclick="toggleMode()"> Dark Mode</button>
-
     </div>
 
     <div class="cards">
       <div class="card">
+        <h3>Total Orders</h3>
+        <p>{{ $co }}</p>
+      </div>
+      <div class="card">
+        <h3>Total Sales</h3>
+        <p>${{ $total }}</p>
+      </div>
+      <div class="card">
+        <h3>Total Product</h3>
+        <p>{{$pro}}</p>
+      </div>
+       <div class="card">
         <h3>Total Users</h3>
         <p>{{ $usercount }}</p>
       </div>
-      <div class="card">
-        <h3>Monthly Revenue</h3>
-        <p>$42,000</p>
-      </div>
-      <div class="card">
-        <h3>New Orders</h3>
-        <p>870</p>
-      </div>
-      <div class="card">
-        <h3>Support Tickets</h3>
-        <p>128</p>
-      </div>
     </div>
 
+
+    
     <div class="chart-container">
       <h3>Sales Overview</h3>
       <canvas id="salesChart" height="100"></canvas>
@@ -195,59 +233,56 @@
   </div>
 
   <script>
-    function showAlert(message) {
-      alert(message);
-    }
-
-    function toggleDarkMode() {
-      document.body.classList.toggle("dark-mode");
-    }
-
-    const ctx = document.getElementById('salesChart').getContext('2d');
-    const salesChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-        datasets: [{
-          label: 'Revenue ($)',
-          data: [12000, 19000, 30000, 22000, 35000],
-          backgroundColor: 'rgba(52, 152, 219, 0.2)',
-          borderColor: 'rgba(52, 152, 219, 1)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  </script>
-<script>
-    // Apply stored mode on page load
+    // Apply the saved theme mode on page load
     if (localStorage.getItem("mode") === "dark") {
       document.body.classList.add("dark-mode");
     }
-  
+
     // Toggle dark mode and store preference
     function toggleMode() {
       document.body.classList.toggle("dark-mode");
       const mode = document.body.classList.contains("dark-mode") ? "dark" : "light";
       localStorage.setItem("mode", mode);
     }
-  </script>
-  <script>
-    function toggleMode() {
-      document.body.classList.toggle("dark-mode");
-      const mode = document.body.classList.contains("dark-mode") ? "dark" : "light";
-      localStorage.setItem("mode", mode);
+
+    // Sidebar toggle for mobile
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('show');
     }
+
+    // Sidebar menu active item highlight
+    document.querySelectorAll('.sidebar ul li').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar ul li').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    // Chart.js sales chart
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: {!! json_encode($labels) !!},
+        datasets: [{
+          label: 'Sales ($)',
+          data: {!! json_encode($data) !!},
+          backgroundColor: 'rgba(52, 152, 219, 0.6)',
+          borderColor: 'rgba(52, 152, 219, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        indexAxis: 'y', // Horizontal bar
+        responsive: true,
+        scales: {
+          x: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
   </script>
-  
+
 </body>
 </html>

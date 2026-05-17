@@ -5,27 +5,43 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use App\Models\Product;
+
+use App\Models\Receipt;
 class ProductController extends Controller
 {
+   
+public function invoices()
+{
+    $receipts = Receipt::with('items')
+     ->orderby('id','desc')
+    ->get();
+    return view('Invoices', compact('receipts'));
+}
+
+
        public function Showproducts()
     {
         $d['pro']=DB::table('products')->where('status',1)
-        ->orderby('id','asc')
+        ->orderby('id','desc')
         ->get();
         return view('Product', $d);
     }
-    public function Add(Request $request)
+   public function Add(Request $request)
 {
     $request->validate([
         'name' => 'required|string|max:255',
         'cat_id' => 'required|string',
         'price' => 'required|numeric',
-        'img' => 'required|image',
+          'img' => 'required|image',
     ]);
 
-    $imgName = time() . '.' . $request->img->extension();
+    // Use original filename with unique suffix to avoid name conflicts
+   $imgName = time() . '.' . $request->img->extension();
     $request->img->move(public_path('img'), $imgName);
 
+   
+
+    // Save product
     Product::create([
         'name' => $request->name,
         'cat_id' => $request->cat_id,
@@ -36,6 +52,7 @@ class ProductController extends Controller
 
     return redirect('/Product')->with('success', 'Product added successfully!');
 }
+
 public function update(Request $request, $id)
 {
     // Validate the request
@@ -86,6 +103,56 @@ public function delete($id)
     $product->update(['status' => 0]);
 
     return redirect('/Product')->with('success', 'Product deleted successfully!');
+}
+public function Count() {
+        $ordercount  = Receipt::with('items')
+                                        ->count();
+        
+        return view('welcome')->with('ordercount', $ordercount);
+    }
+   
+
+// public function index()
+// {
+//     $usercount = DB::table('users')->where('status',1)->count();
+//     $total=DB::table('receipts')->sum('total');
+//     $co = DB::table('receipts')->count();
+//     $pro = DB::table('products')->where('status',1)->count();
+
+  
+//     // Generate month labels and fill data
+//     $labels = [];
+//     $data = [];
+
+//     for ($i = 1; $i <= 12; $i++) {
+//         $labels[] = date('M', mktime(0, 0, 0, $i, 10)); // Jan, Feb, etc.
+//         $data[] = $monthlySales[$i] ?? 0; // Default to 0 if no data
+//     }
+
+//     return view('welcome', compact('usercount', 'total', 'co', 'pro', 'labels', 'data'));
+// }
+
+
+
+public function index()
+{
+   $usercount = DB::table('users')->where('status',1)->count();
+    $total=DB::table('receipts')->sum('total');
+    $co = DB::table('receipts')->count();
+    $pro = DB::table('products')->where('status',1)->count();
+
+    // Group sales by date
+    $dailySales = DB::table('receipts')
+        ->selectRaw('DATE(created_at) as date, SUM(total) as total')
+        ->groupBy('date')
+        ->orderBy('date', 'desc')
+        ->limit(10) // latest 10 days
+        ->get();
+
+    $labels = $dailySales->pluck('date')->toArray();
+    $data = $dailySales->pluck('total')->toArray();
+
+    return view('welcome', compact('usercount', 'total', 'co', 'pro', 'labels', 'data'));
 }
 
 }

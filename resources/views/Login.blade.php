@@ -1,163 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Login</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    :root {
-      --bg-color: #f4f6f9;
-      --card-bg: #fff;
-      --text-color: #333;
-    }
-
-    body.dark-mode {
-      --bg-color: #1e1e2f;
-      --card-bg: #2a2a3d;
-      --text-color: #f1f1f1;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
-
-    body {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: var(--bg-color);
-      transition: background 0.3s, color 0.3s;
-    }
-
-    .login-card {
-      background-color: var(--card-bg);
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-    }
-
-    .login-card h2 {
-      margin-bottom: 20px;
-      color: var(--text-color);
-    }
-
-    .login-card input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    .login-card button {
-      width: 100%;
-      padding: 12px;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .toggle-password {
-      position: absolute;
-      right: 20px;
-      top: 38px;
-      cursor: pointer;
-      color: #999;
-    }
-
-    .input-wrapper {
-      position: relative;
-    }
-
-    .dark-toggle {
-      margin-top: 20px;
-      font-size: 14px;
-      color: var(--text-color);
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    .login-card p {
-      font-size: 14px;
-      color: #888;
-      margin-top: 15px;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>POS System - Admin Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top right, #4f46e5, transparent), 
+                        radial-gradient(circle at bottom left, #7c3aed, transparent);
+            background-color: #0f172a;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .light-mode body {
+            background: radial-gradient(circle at top right, #e0e7ff, transparent), 
+                        radial-gradient(circle at bottom left, #f3e8ff, transparent);
+            background-color: #f8fafc;
+        }
+        .light-mode .glass {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        .input-focus:focus-within {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+    </style>
 </head>
-<body>
+<body class="h-full flex items-center justify-center p-6 transition-colors duration-500">
 
-  <div class="login-card">
-    <h2><i class="fas fa-lock"></i> Admin Login</h2>
-    <form onsubmit="return login(event)">
-      <input type="email" id="email" placeholder="Email" required />
-      <div class="input-wrapper">
-        <input type="password" id="password" placeholder="Password" required />
-        <i class="fas fa-eye toggle-password" onclick="togglePassword(this)"></i>
-      </div>
-      <button type="submit">Login</button>
-    </form>
-    <div class="dark-toggle" onclick="toggleMode()"> Dark Mode</div>
-   <br>
-  </div>
+    <div class="fixed top-6 right-6">
+        <button onclick="toggleMode()" class="glass p-3 rounded-2xl cursor-pointer hover:scale-110 transition-transform duration-200">
+            <i id="theme-icon" class="fas fa-moon text-indigo-500 dark:text-indigo-400 text-xl"></i>
+        </button>
+    </div>
 
-  <script>
-    function togglePassword(icon) {
-      const password = document.getElementById("password");
-      if (password.type === "password") {
-        password.type = "text";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
-      } else {
-        password.type = "password";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
-      }
-    }
+    <div class="w-full max-w-md">
+        <div class="glass p-10 rounded-[2.5rem] relative overflow-hidden">
+            <!-- Decorative blur shapes -->
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl"></div>
 
-    function toggleMode() {
-      document.body.classList.toggle("dark-mode");
-    }
+            <div class="relative z-10">
+                <div class="flex flex-col items-center mb-10">
+                    <div class="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-6 rotate-3">
+                        <i class="fas fa-shop text-white text-3xl -rotate-3"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h1>
+                    <p class="text-slate-500 dark:text-slate-400 text-center">Login to manage your POS system</p>
+                </div>
 
-    function login(event) {
-      event.preventDefault();
-      const email = document.getElementById("email").value;
-      const pass = document.getElementById("password").value;
+                <form action="{{ route('login.post') }}" method="post" class="space-y-6">
+                    @csrf
+                    <div class="space-y-2">
+                        <label for="email" class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">Email Address</label>
+                        <div class="input-focus flex items-center bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all duration-200">
+                            <i class="fas fa-envelope text-slate-400 ml-4"></i>
+                            <input type="email" id="email" name="email" placeholder="name@company.com" required 
+                                class="w-full py-4 px-4 bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400 rounded-2xl" />
+                        </div>
+                    </div>
 
-      if (email && pass) {
-        
-        // Redirect to dashboard page
-        window.location.href = "/";
-      } else {
-        alert("Please fill out all fields.");
-      }
-    }
-  </script>
-<script>
-    // Apply stored mode on page load
-    if (localStorage.getItem("mode") === "dark") {
-      document.body.classList.add("dark-mode");
-    }
-  
-    // Toggle dark mode and store preference
-    function toggleMode() {
-      document.body.classList.toggle("dark-mode");
-      const mode = document.body.classList.contains("dark-mode") ? "dark" : "light";
-      localStorage.setItem("mode", mode);
-    }
-  </script>
-  
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center ml-1">
+                            <label for="password" class="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+                            <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors">Forgot?</a>
+                        </div>
+                        <div class="input-focus flex items-center bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all duration-200">
+                            <i class="fas fa-lock text-slate-400 ml-4"></i>
+                            <input type="password" id="password" name="password" placeholder="••••••••" required 
+                                class="w-full py-4 px-4 bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400 rounded-2xl" />
+                            <button type="button" onclick="togglePassword()" class="mr-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                                <i id="password-toggle-icon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3 ml-1">
+                        <input type="checkbox" id="remember" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800">
+                        <label for="remember" class="text-sm text-slate-600 dark:text-slate-400 cursor-pointer">Remember me</label>
+                    </div>
+
+                    <button type="submit" 
+                        class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/30 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-95">
+                        Log In
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center pt-8 border-t border-slate-200 dark:border-slate-700/50">
+                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                        Protected by secure 256-bit encryption
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const password = document.getElementById("password");
+            const icon = document.getElementById("password-toggle-icon");
+            if (password.type === "password") {
+                password.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                password.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+
+        function toggleMode() {
+            const isDark = document.documentElement.classList.toggle("dark");
+            if (isDark) {
+                document.body.classList.remove("light-mode");
+                document.getElementById('theme-icon').className = 'fas fa-sun text-amber-400 text-xl';
+                localStorage.setItem("mode", "dark");
+            } else {
+                document.body.classList.add("light-mode");
+                document.getElementById('theme-icon').className = 'fas fa-moon text-indigo-500 text-xl';
+                localStorage.setItem("mode", "light");
+            }
+        }
+
+        // Initialize theme
+        const storedMode = localStorage.getItem("mode");
+        if (storedMode === "light") {
+            document.documentElement.classList.remove("dark");
+            document.body.classList.add("light-mode");
+            document.getElementById('theme-icon').className = 'fas fa-moon text-indigo-500 text-xl';
+        } else {
+            document.documentElement.classList.add("dark");
+            document.body.classList.remove("light-mode");
+            document.getElementById('theme-icon').className = 'fas fa-sun text-amber-400 text-xl';
+        }
+    </script>
 </body>
 </html>
+

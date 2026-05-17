@@ -13,5 +13,9 @@ class Users extends Model
     'role',
     'status'
 ];
+public function role()
+{
+    return $this->belongsTo(Role::class);
+}
 
 }

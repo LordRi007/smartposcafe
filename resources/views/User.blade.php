@@ -196,19 +196,94 @@
         margin-left: 0;
       }
     }
+    .sidebar {
+  width: 240px;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-color);
+  padding: 20px 0;
+  position: fixed;
+  height: 100vh;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 24px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  padding: 15px 25px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s, padding-left 0.2s;
+}
+
+.sidebar ul li:hover,
+.sidebar ul li.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding-left: 30px;
+}
+
+.sidebar ul li i {
+  min-width: 20px;
+  font-size: 16px;
+}
+
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  font-size: 18px;
+  border-radius: 6px;
+  z-index: 1001;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    left: -240px;
+  }
+
+  .sidebar.show {
+    left: 0;
+  }
+
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .main {
+    margin-left: 0;
+    padding-top: 60px;
+  }
+}
+
   </style>
 </head>
 <body>
 
   <div class="sidebar">
-    <h2><i class="fas fa-user-cog"></i> Admin</h2>
+     <h2><i class="fas fa-coffee"></i> SmartCafe</h2>
     <ul>
-        <li onclick="location.href='/'"><i class="fas fa-home"></i> Dashboard</li>
-        <li onclick="location.href='/User'">
-          <i class="fas fa-users"></i> Users
-        </li>      
+       <li onclick="location.href='/'"><i  class="fas fa-home"></i> Dashboard</li>
+        <li onclick="location.href='/User' " class="active"><i  class="fas fa-users"></i> Users</li>      
         <li onclick="location.href='/Product'"><i class="fas fa-box"></i> Product</li>
-      
+        <li onclick="location.href='/Invoice'"><i class="fas fa-file-invoice"></i> Invoices</li>
+          <li onclick="location.href='/Pos'"><i class="fas fa-solid fa-store"></i> POS</li>
         <li onclick="location.href='/Login'"><i class="fas fa-sign-out-alt"></i> Logout</li>
     </ul>
   </div>
@@ -435,6 +510,19 @@ function openModal2() {
       localStorage.setItem("mode", mode);
     }
   </script>
-  
+  <script>
+  function toggleSidebar() {
+    document.querySelector('.sidebar').classList.toggle('show');
+  }
+
+  // Add active class to current menu item
+  document.querySelectorAll('.sidebar ul li').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar ul li').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+</script>
+
 </body>
 </html>

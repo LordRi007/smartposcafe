@@ -2,14 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use DB;
 class Product extends Model
 {
-      protected $fillable = ['name', 'cat_id', 'price', 'qty', 'des', 'img', 'status'];
-public function category()
-{
-    return $this->belongsTo(Category::class, 'cat_id');
-}
+   
+use HasFactory;
 
+   protected $fillable = ['name', 'cat_id', 'price', 'img', 'status'];
+
+
+    // Convert price to float when accessing
+    public function getPriceAttribute($value)
+    {
+        return (float)$value;
+    }
+
+    public function receiptItems()
+    {
+        return $this->hasMany(ReceiptItem::class);
+    }
 }

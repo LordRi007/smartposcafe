@@ -12,15 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('receipts', function (Blueprint $table) {
-           $table->id();
-            $table->decimal('total_amount', 10, 2);
-            $table->decimal('received_amount', 10, 2);
-            $table->decimal('change_amount', 10, 2);
-            $table->unsignedBigInteger('cashier_id')->nullable();
-            $table->timestamps();
+    $table->id();
+    $table->decimal('total', 10, 2);
+    $table->decimal('received', 10, 2);
+    $table->decimal('change', 10, 2);
+    $table->timestamps();
+});
 
-            $table->foreign('cashier_id')->references('id')->on('users')->nullOnDelete();
-        });
     }
 
     /**

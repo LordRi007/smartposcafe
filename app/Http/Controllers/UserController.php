@@ -5,13 +5,14 @@ use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Users;
+use Auth;
 use Illuminate\Support\Facades\Log;
 class UserController extends Controller
 {
     function Showuser(){
         // $data['user']= Users1::paginate(2);
         $data['user']=DB::table('users')->where('status',1)
-        ->orderby('id','asc')
+        ->orderby('id','desc')
         ->get();
         return view('User' , $data);
     }
@@ -25,7 +26,7 @@ class UserController extends Controller
         'name' => 'required|string|max:255',
         'email' => 'required|email',
         'role' => 'required|string',
-        'pass' => 'nullable|string|min:6', // password is optional
+        'pass' => 'nullable|string', // password is optional
     ]);
 
     // Find user by ID
@@ -53,7 +54,7 @@ class UserController extends Controller
         $rq->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'pass' => 'required|string|min:6',
+            'pass' => 'required|string|min:3',
             'role' => 'required|string'
         ]);
 
@@ -96,12 +97,32 @@ public function destroy(Request $request)
     }
 }
 
- public function Count() {
-        $usercount = DB::table('users')->where('status', 1)
-                                        ->count();
-        
-        return view('welcome')->with('usercount', $usercount);
-    }
+public function Count() {
+    $usercount = DB::table('users')->where('status', 1)->count();
+    $pro = DB::table('products')->where('status', 1)->count();
+    $co = DB::table('receipts')->count();
+    $total=DB::table('receipts')->sum('total');
+    return view('welcome', compact('usercount', 'co','total','pro'));
+    
+}
 
+// function Login(Request $rq){
+//     $user=$rq->name;
+//     $pass=$rq->password;
+//     $u= array(
+//         'name'=>$user,
+//         'password'=>$pass
+//     );
+//     if(Auth::attempt($u)){
+//         return redirect()->intended();
+//     }else{
+//         return redirect('/Login');
+//     }
+// }
+
+// function logout(Request $r){
+//     Auth::logout();
+//     return redirect('/Login');
+// }
 
 }
