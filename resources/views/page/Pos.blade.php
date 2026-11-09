@@ -1116,6 +1116,6 @@
         </div>
     </div>
     <!-- Hidden Print Iframe -->
-    <iframe id="receipt-print-iframe" style="display:none; width:0; height:0; border:0;"></iframe>
+    <iframe id="receipt-print-iframe" style="position: fixed; right: 0; bottom: 0; width: 0; height: 0; border: 0; opacity: 0; pointer-events: none;"></iframe>
 </body>
 </html>

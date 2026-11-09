@@ -5,29 +5,41 @@
 
 @section('styles')
 <style>
-    /* Printing stylesheet styles for receipt */
+    /* Printing stylesheet fallback */
     @media print {
-        body * {
-            visibility: hidden;
-        }
-        #receipt-print-area, #receipt-print-area * {
-            visibility: visible;
-        }
-        #receipt-print-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            max-width: 80mm; /* standard thermal roll width */
-            padding: 10px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 12px;
-            color: #000 !important;
+        body {
+            visibility: hidden !important;
             background: #fff !important;
-            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        #receiptModal {
+            position: fixed !important;
+            inset: 0 !important;
+            background: #fff !important;
+            visibility: visible !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            margin: 0 !important;
             border: none !important;
         }
-        /* Hide layout and close elements */
+        #receiptModal > div {
+            transform: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            width: 100% !important;
+            max-width: 80mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #fff !important;
+        }
+        #receipt-print-area, #receipt-print-area * {
+            visibility: visible !important;
+            color: #000 !important;
+            background: transparent !important;
+        }
         .no-print {
             display: none !important;
         }
@@ -184,19 +196,25 @@
 
         <!-- Receipt Print Action (Non-printable) -->
         <div class="p-6 border-t border-slate-200/50 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-900/60 no-print">
-            <button onclick="window.print()" class="w-full flex items-center justify-center gap-2 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+            <button onclick="printReceipt()" class="w-full flex items-center justify-center gap-2 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
                 <i class="fas fa-print"></i>
                 <span>Print Receipt</span>
             </button>
         </div>
     </div>
 </div>
+
+<!-- Hidden Print Iframe -->
+<iframe id="receipt-print-iframe" style="position: fixed; right: 0; bottom: 0; width: 0; height: 0; border: 0; opacity: 0; pointer-events: none;"></iframe>
 @endsection
 
 @section('scripts')
 <script>
+    let currentReceipt = null;
+
     // Open Receipt details and compute currency fields
     function openReceiptModal(receipt) {
+        currentReceipt = receipt;
         const rate = 4100; // Exchange rate USD -> KHR
 
         const totalUSD = parseFloat(receipt.total);
@@ -248,6 +266,180 @@
             content.classList.remove('scale-95');
             content.classList.add('scale-100');
         }, 10);
+    }
+
+    // Print Receipt via hidden iframe (reliable across all browsers and thermal printers)
+    function printReceipt() {
+        if (!currentReceipt) return;
+
+        const rate = 4100;
+        const totalUSD = parseFloat(currentReceipt.total);
+        const receivedUSD = parseFloat(currentReceipt.received || 0);
+        const changeUSD = parseFloat(currentReceipt.change || 0);
+
+        const createdDate = new Date(currentReceipt.created_at);
+        const formattedDate = createdDate.getFullYear() + '-' + 
+                              String(createdDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                              String(createdDate.getDate()).padStart(2, '0') + ' ' + 
+                              String(createdDate.getHours()).padStart(2, '0') + ':' + 
+                              String(createdDate.getMinutes()).padStart(2, '0');
+
+        let itemsRows = '';
+        if (currentReceipt.items && currentReceipt.items.length) {
+            currentReceipt.items.forEach(item => {
+                const itemTotal = item.quantity * item.price;
+                itemsRows += `
+                    <tr>
+                        <td style="text-align: left; padding: 4px 0; vertical-align: top;">
+                            <div style="font-weight: bold;">${item.product_name}</div>
+                            <div style="font-size: 11px; color: #555;">${item.quantity} x $${parseFloat(item.price).toFixed(2)}</div>
+                        </td>
+                        <td style="text-align: right; padding: 4px 0; vertical-align: top; font-weight: bold;">
+                            $${itemTotal.toFixed(2)}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        const receiptHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Receipt #${currentReceipt.id} - SmartCafe</title>
+                <style>
+                    @page {
+                        size: 80mm auto;
+                        margin: 0;
+                    }
+                    body {
+                        font-family: 'Courier New', Courier, monospace;
+                        margin: 0;
+                        padding: 12px 14px;
+                        width: 72mm;
+                        font-size: 12px;
+                        color: #000;
+                        background: #fff;
+                        line-height: 1.35;
+                    }
+                    * {
+                        box-sizing: border-box;
+                    }
+                    .text-center { text-align: center; }
+                    .text-right { text-align: right; }
+                    .font-bold { font-weight: bold; }
+                    .dashed {
+                        border-bottom: 1px dashed #000;
+                        margin: 8px 0;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+                    .summary-row {
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 2px 0;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="text-center">
+                    <h2 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">SmartCafe</h2>
+                    <p style="margin: 3px 0 0; font-size: 11px; text-transform: uppercase; color: #333;">Cashier Checkout Slip</p>
+                </div>
+
+                <div class="dashed"></div>
+
+                <div style="font-size: 11px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Receipt: <strong>#${currentReceipt.id}</strong></span>
+                        <span>${formattedDate}</span>
+                    </div>
+                    <div style="margin-top: 3px;">
+                        <span>Payment: <strong>${currentReceipt.payment_method || 'Cash'}</strong></span>
+                    </div>
+                </div>
+
+                <div class="dashed"></div>
+
+                <table>
+                    <thead>
+                        <tr style="border-bottom: 1px dashed #000; font-size: 11px;">
+                            <th style="text-align: left; padding-bottom: 4px;">Item</th>
+                            <th style="text-align: right; padding-bottom: 4px;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsRows}
+                    </tbody>
+                </table>
+
+                <div class="dashed"></div>
+
+                <div>
+                    <div class="summary-row" style="font-size: 12px;">
+                        <span>Subtotal:</span>
+                        <span>$${totalUSD.toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row font-bold" style="font-size: 14px; margin-top: 2px;">
+                        <span>Total USD:</span>
+                        <span>$${totalUSD.toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row" style="font-size: 11px; color: #333;">
+                        <span>Total (KHR):</span>
+                        <span>៛${Math.round(totalUSD * rate).toLocaleString()}</span>
+                    </div>
+                    <div class="dashed" style="margin: 6px 0;"></div>
+                    <div class="summary-row" style="font-size: 11px;">
+                        <span>Received (USD):</span>
+                        <span>$${receivedUSD.toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row font-bold" style="font-size: 13px; color: #000;">
+                        <span>Change USD:</span>
+                        <span>$${changeUSD.toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row" style="font-size: 11px;">
+                        <span>Change (KHR):</span>
+                        <span>៛${Math.round(changeUSD * rate).toLocaleString()}</span>
+                    </div>
+                </div>
+
+                <div class="dashed" style="margin-top: 12px;"></div>
+
+                <div class="text-center" style="margin-top: 10px; font-size: 11px;">
+                    <p style="margin: 0; font-weight: bold; text-transform: uppercase;">Thank you for your visit!</p>
+                    <p style="margin: 3px 0 0; font-size: 10px; color: #666;">SmartPOS Cafe Operations System</p>
+                </div>
+            </body>
+            </html>
+        `;
+
+        let iframe = document.getElementById('receipt-print-iframe');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.id = 'receipt-print-iframe';
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            iframe.style.opacity = '0';
+            iframe.style.pointerEvents = 'none';
+            document.body.appendChild(iframe);
+        }
+
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(receiptHtml);
+        doc.close();
+
+        setTimeout(() => {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        }, 150);
     }
 
     // Close Receipt modal
