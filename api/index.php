@@ -63,7 +63,7 @@ if ($dbConn === 'sqlite' || empty($dbConn)) {
     $sqliteFile = '/tmp/database.sqlite';
     $seedFile = __DIR__ . '/../database/seed_database.sqlite';
 
-    if (!file_exists($sqliteFile) || filesize($sqliteFile) === 0) {
+    if (!file_exists($sqliteFile) || filesize($sqliteFile) < 10000) {
         if (file_exists($seedFile)) {
             @copy($seedFile, $sqliteFile);
         } else {
