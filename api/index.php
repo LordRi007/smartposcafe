@@ -5,6 +5,15 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// Ensure HTTPS is recognized in Vercel serverless environment
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+    $_SERVER['SERVER_PORT'] = 443;
+} else if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || isset($_SERVER['HTTP_HOST'])) {
+    $_SERVER['HTTPS'] = 'on';
+    $_SERVER['SERVER_PORT'] = 443;
+}
+
 // 1. Prepare temporary storage in /tmp (writable in Vercel serverless)
 $storageBase = '/tmp/storage';
 $subDirs = [
