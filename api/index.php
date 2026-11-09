@@ -52,9 +52,19 @@ if (empty(getenv('CACHE_STORE')) && empty($_ENV['CACHE_STORE'])) {
 $dbConn = getenv('DB_CONNECTION') ?: ($_ENV['DB_CONNECTION'] ?? null);
 if ($dbConn === 'sqlite' || empty($dbConn)) {
     $sqliteFile = '/tmp/database.sqlite';
-    if (!file_exists($sqliteFile)) {
-        @touch($sqliteFile);
+    $seedFile = __DIR__ . '/../database/seed_database.sqlite';
+
+    if (!file_exists($sqliteFile) || filesize($sqliteFile) === 0) {
+        if (file_exists($seedFile)) {
+            @copy($seedFile, $sqliteFile);
+        } else {
+            @touch($sqliteFile);
+        }
     }
+    putenv('DB_CONNECTION=sqlite');
+    $_ENV['DB_CONNECTION'] = 'sqlite';
+    $_SERVER['DB_CONNECTION'] = 'sqlite';
+
     putenv("DB_DATABASE={$sqliteFile}");
     $_ENV['DB_DATABASE'] = $sqliteFile;
     $_SERVER['DB_DATABASE'] = $sqliteFile;
