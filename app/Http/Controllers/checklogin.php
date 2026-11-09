@@ -15,9 +15,18 @@ function Checklogin(Request $request) {
 
     $user = DB::table('users')->where('email', $email)->first();
     if ($user && Hash::check($pass, $user->password)) {
-        session(['id' => $user->id, 'name' => $user->name]);
+        session([
+            'id' => $user->id,
+            'name' => $user->name,
+            'role' => $user->role
+        ]);
        
+        $role = strtolower($user->role ?? '');
+        if ($role === 'manager' || $role === 'assistant') {
+            return redirect('/');
+        } else {
             return redirect('/Pos');
+        }
 
     } else {
         session()->flash('status', 'Invalid Email or Password');

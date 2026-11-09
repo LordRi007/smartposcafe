@@ -1,288 +1,181 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      --bg-color: #f4f6f9;
-      --card-bg: #fff;
-      --text-color: #333;
-      --sidebar-bg: #2c3e50;
-      --sidebar-color: #ecf0f1;
-    }
+@extends('layouts.app')
 
-    body.dark-mode {
-      --bg-color: #1e1e2f;
-      --card-bg: #2a2a3d;
-      --text-color: #f1f1f1;
-      --sidebar-bg: #111;
-      --sidebar-color: #ccc;
-    }
+@section('title', 'SmartCafe - Dashboard')
+@section('page_title', 'Dashboard')
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
-
-    body {
-      display: flex;
-      min-height: 100vh;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      transition: background 0.3s, color 0.3s;
-    }
-
-    /* Sidebar styles */
-    .sidebar {
-      width: 240px;
-      background-color: var(--sidebar-bg);
-      color: var(--sidebar-color);
-      padding: 20px 0;
-      position: fixed;
-      height: 100vh;
-      transition: all 0.3s ease;
-      z-index: 1000;
-      left: 0;
-    }
-
-    .sidebar h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 24px;
-    }
-
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .sidebar ul li {
-      padding: 15px 25px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: background 0.2s, padding-left 0.2s;
-    }
-
-    .sidebar ul li:hover,
-    .sidebar ul li.active {
-      background-color: rgba(255, 255, 255, 0.1);
-      padding-left: 30px;
-    }
-
-    .sidebar ul li i {
-      min-width: 20px;
-      font-size: 16px;
-    }
-
-    /* Sidebar toggle button */
-    .sidebar-toggle {
-      display: none;
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      background: #3498db;
-      color: white;
-      border: none;
-      padding: 10px 12px;
-      font-size: 18px;
-      border-radius: 6px;
-      z-index: 1001;
-      cursor: pointer;
-    }
-
-    /* Main content styles */
-    .main {
-      margin-left: 240px;
-      flex: 1;
-      padding: 20px;
-      transition: margin-left 0.3s ease;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      background: var(--card-bg);
-      padding: 15px 25px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      border-radius: 8px;
-    }
-
-    .topbar h1 {
-      font-size: 22px;
-    }
-
-    .topbar button {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 5px;
-      background-color: #3498db;
-      color: white;
-      cursor: pointer;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: background 0.3s, color 0.3s;
-    }
-
-    .card h3 {
-      margin-bottom: 8px;
-      font-size: 18px;
-    }
-
-    .card p {
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    .chart-container {
-      margin-top: 30px;
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    @media (max-width: 768px) {
-      .sidebar {
-        left: -240px;
-      }
-
-      .sidebar.show {
-        left: 0;
-      }
-
-      .sidebar-toggle {
-        display: block;
-      }
-
-      .main {
-        margin-left: 0;
-        padding-top: 60px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- Sidebar toggle button for mobile -->
-  <button class="sidebar-toggle" onclick="toggleSidebar()">
-    <i class="fas fa-bars"></i>
-  </button>
-
-  <div class="sidebar">
-    <h2><i class="fas fa-coffee"></i> SmartCafe</h2>
-    <ul>
-      <li onclick="location.href='/'" class="active"><i class="fas fa-home"></i> Dashboard</li>
-      <li onclick="location.href='/User'"><i class="fas fa-users"></i> Users</li>      
-      <li onclick="location.href='/Product'"><i class="fas fa-box"></i> Product</li>
-      <li onclick="location.href='/Invoice'"><i class="fas fa-file-invoice"></i> Invoices</li>
-      <li onclick="location.href='/Pos'"><i class="fas fa-store"></i> POS</li>
-      <li onclick="location.href='/logout'"><i class="fas fa-sign-out-alt"></i> Logout</li>
-    </ul>
-  </div>
-
-  <div class="main">
-    <div class="topbar">
-      <h1>Admin Dashboard</h1>
-      <button class="dark-toggle" onclick="toggleMode()"> Dark Mode</button>
-    </div>
-
-    <div class="cards">
-      <div class="card">
-        <h3>Total Orders</h3>
-        <p>{{ $co }}</p>
-      </div>
-      <div class="card">
-        <h3>Total Sales</h3>
-        <p>${{ $total }}</p>
-      </div>
-      <div class="card">
-        <h3>Total Product</h3>
-        <p>{{$pro}}</p>
-      </div>
-       <div class="card">
-        <h3>Total Users</h3>
-        <p>{{ $usercount }}</p>
-      </div>
-    </div>
-
-
+@section('content')
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     
-    <div class="chart-container">
-      <h3>Sales Overview</h3>
-      <canvas id="salesChart" height="100"></canvas>
+    <!-- Total Sales Widget -->
+    <div class="relative overflow-hidden group bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 shadow-md shadow-emerald-500/10 hover:shadow-xl hover:shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-1">
+        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+        <div class="relative z-10 flex items-center justify-between">
+            <div>
+                <span class="text-white/80 text-xs font-semibold uppercase tracking-wider">Total Revenue</span>
+                <h3 class="text-3xl font-bold text-white mt-1">${{ number_format($total, 2) }}</h3>
+                <p class="text-white/60 text-xs mt-2 font-medium">USD Cumulative Sales</p>
+            </div>
+            <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-white">
+                <i class="fas fa-wallet text-xl"></i>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // Apply the saved theme mode on page load
-    if (localStorage.getItem("mode") === "dark") {
-      document.body.classList.add("dark-mode");
-    }
+    <!-- Total Orders Widget -->
+    <div class="relative overflow-hidden group bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 shadow-md shadow-indigo-500/10 hover:shadow-xl hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-1">
+        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+        <div class="relative z-10 flex items-center justify-between">
+            <div>
+                <span class="text-white/80 text-xs font-semibold uppercase tracking-wider">Total Orders</span>
+                <h3 class="text-3xl font-bold text-white mt-1">{{ $co }}</h3>
+                <p class="text-white/60 text-xs mt-2 font-medium">Processed Receipts</p>
+            </div>
+            <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-white">
+                <i class="fas fa-shopping-bag text-xl"></i>
+            </div>
+        </div>
+    </div>
 
-    // Toggle dark mode and store preference
-    function toggleMode() {
-      document.body.classList.toggle("dark-mode");
-      const mode = document.body.classList.contains("dark-mode") ? "dark" : "light";
-      localStorage.setItem("mode", mode);
-    }
+    <!-- Total Products Widget -->
+    <div class="relative overflow-hidden group bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-3xl p-6 shadow-md shadow-violet-500/10 hover:shadow-xl hover:shadow-violet-500/20 transition-all duration-300 hover:-translate-y-1">
+        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+        <div class="relative z-10 flex items-center justify-between">
+            <div>
+                <span class="text-white/80 text-xs font-semibold uppercase tracking-wider">Total Products</span>
+                <h3 class="text-3xl font-bold text-white mt-1">{{ $pro }}</h3>
+                <p class="text-white/60 text-xs mt-2 font-medium">Active Menu Items</p>
+            </div>
+            <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-white">
+                <i class="fas fa-coffee text-xl"></i>
+            </div>
+        </div>
+    </div>
 
-    // Sidebar toggle for mobile
-    function toggleSidebar() {
-      document.querySelector('.sidebar').classList.toggle('show');
-    }
+    <!-- Total Cashiers Widget -->
+    <div class="relative overflow-hidden group bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-6 shadow-md shadow-amber-500/10 hover:shadow-xl hover:shadow-amber-500/20 transition-all duration-300 hover:-translate-y-1">
+        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+        <div class="relative z-10 flex items-center justify-between">
+            <div>
+                <span class="text-white/80 text-xs font-semibold uppercase tracking-wider">Active Staff</span>
+                <h3 class="text-3xl font-bold text-white mt-1">{{ $usercount }}</h3>
+                <p class="text-white/60 text-xs mt-2 font-medium">Registered Cashiers</p>
+            </div>
+            <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-white">
+                <i class="fas fa-users text-xl"></i>
+            </div>
+        </div>
+    </div>
 
-    // Sidebar menu active item highlight
-    document.querySelectorAll('.sidebar ul li').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.sidebar ul li').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-      });
+</div>
+
+<!-- Chart Section -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-[2rem] p-6 lg:p-8 shadow-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+            <h3 class="text-lg font-bold text-slate-950 dark:text-white">Sales Performance Overview</h3>
+            <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Tracking store revenue patterns over time</p>
+        </div>
+        <div class="flex items-center gap-2 text-xs py-1.5 px-3 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 font-semibold rounded-xl">
+            <i class="fas fa-calendar-day"></i>
+            <span>Latest 10 Sales Days</span>
+        </div>
+    </div>
+    
+    <div class="relative h-96 w-full">
+        <canvas id="salesChart"></canvas>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        
+        // Define gradients
+        const gradientFill = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientFill.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+        gradientFill.addColorStop(1, 'rgba(99, 102, 241, 0.01)');
+        
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($labels) !!},
+                datasets: [{
+                    label: 'Daily Revenue ($)',
+                    data: {!! json_encode($data) !!},
+                    backgroundColor: gradientFill,
+                    borderColor: 'rgb(99, 102, 241)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: 'rgb(99, 102, 241)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        padding: 12,
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: {
+                            family: 'Outfit',
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            family: 'Outfit',
+                            size: 13
+                        },
+                        cornerRadius: 12,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Outfit',
+                                size: 11
+                            },
+                            color: 'rgb(148, 163, 184)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(148, 163, 184, 0.1)',
+                            drawTicks: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Outfit',
+                                size: 11
+                            },
+                            color: 'rgb(148, 163, 184)',
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        },
+                        border: {
+                            dash: [5, 5]
+                        }
+                    }
+                }
+            }
+        });
     });
-
-    // Chart.js sales chart
-    const ctx = document.getElementById('salesChart').getContext('2d');
-    const salesChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: {!! json_encode($labels) !!},
-        datasets: [{
-          label: 'Sales ($)',
-          data: {!! json_encode($data) !!},
-          backgroundColor: 'rgba(52, 152, 219, 0.6)',
-          borderColor: 'rgba(52, 152, 219, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        indexAxis: 'y', // Horizontal bar
-        responsive: true,
-        scales: {
-          x: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  </script>
-
-</body>
-</html>
+</script>
+@endsection

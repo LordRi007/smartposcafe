@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
@@ -22,12 +23,12 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .light-mode body {
+        body.light-mode {
             background: radial-gradient(circle at top right, #e0e7ff, transparent), 
                         radial-gradient(circle at bottom left, #f3e8ff, transparent);
             background-color: #f8fafc;
         }
-        .light-mode .glass {
+        body.light-mode .glass {
             background: rgba(255, 255, 255, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
@@ -55,7 +56,7 @@
             <div class="relative z-10">
                 <div class="flex flex-col items-center mb-10">
                     <div class="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-6 rotate-3">
-                        <i class="fas fa-shop text-white text-3xl -rotate-3"></i>
+                        <i class="fas fa-mug-hot text-white text-3xl -rotate-3"></i>
                     </div>
                     <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h1>
                     <p class="text-slate-500 dark:text-slate-400 text-center">Login to manage your POS system</p>
@@ -96,6 +97,11 @@
                         class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/30 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-95">
                         Log In
                     </button>
+
+                    <button type="button" onclick="quickLogin()"
+                        class="w-full py-3.5 bg-slate-100 dark:bg-slate-800/30 hover:bg-slate-200 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/50 font-semibold rounded-2xl transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 cursor-pointer mt-3 text-sm">
+                        <i class="fas fa-bolt text-amber-500"></i> Quick Dev Login
+                    </button>
                 </form>
 
                 <div class="mt-8 text-center pt-8 border-t border-slate-200 dark:border-slate-700/50">
@@ -120,6 +126,12 @@
                 icon.classList.remove("fa-eye-slash");
                 icon.classList.add("fa-eye");
             }
+        }
+
+        function quickLogin() {
+            document.getElementById("email").value = "satchhunseak123@gmail.com";
+            document.getElementById("password").value = "123";
+            document.querySelector("form").submit();
         }
 
         function toggleMode() {

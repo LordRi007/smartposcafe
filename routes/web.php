@@ -30,13 +30,14 @@ Route::middleware(CheckRole::class)->group(function () {
     Route::put('/editpro/{id}', [ProductController::class, 'update'])->name('product.update');
     Route::get('/Product/delete/{id}', [ProductController::class, 'delete'])->name('product.delete');
     Route::get('/Pos', [PosController::class, 'showPOS'])->name('pos.show');
-    Route::post('/pos/checkout', [App\Http\Controllers\POSController::class, 'checkout'])->name('pos.checkout');
+    Route::post('/pos/checkout', [PosController::class, 'checkout'])->name('pos.checkout');
+    Route::post('/pos/generate-qr', [PosController::class, 'generateQR'])->name('pos.generate-qr');
+    Route::post('/pos/check-payment', [PosController::class, 'checkPayment'])->name('pos.check-payment');
     // Route::get('/filter-sales', [DashboardController::class, 'filterSales']);
 
     Route::get('/Invoice', [ProductController::class, 'invoices'])->name('invoice.show');
-
-    // Route::get('/Invoices', [App\Http\Controllers\PosController::class, 'invoices'])->name('invoices.list');
-// Route::get('/Invoices/{id}', [App\Http\Controllers\PosController::class, 'invoiceDetail'])->name('invoices.detail');
+    Route::get('/Calendar', [ProductController::class, 'salesCalendar'])->name('calendar.show');
+    Route::post('/settings/update', [ProductController::class, 'updateSetting'])->name('settings.update');
 });
 
 Route::get('/Login', function () {

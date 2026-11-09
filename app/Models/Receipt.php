@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Receipt extends Model
 {
-     protected $fillable = ['total', 'received', 'change'];
+     protected $fillable = ['total', 'received', 'change', 'payment_method'];
 
     public function items()
     {

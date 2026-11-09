@@ -155,4 +155,31 @@ public function index()
     return view('welcome', compact('usercount', 'total', 'co', 'pro', 'labels', 'data'));
 }
 
+public function salesCalendar()
+{
+    $sales = DB::table('receipts')
+        ->selectRaw('DATE(created_at) as date, SUM(total) as total, COUNT(id) as count')
+        ->groupBy('date')
+        ->get()
+        ->keyBy('date');
+        
+    $dailyTarget = DB::table('settings')->where('key', 'daily_sales_target')->value('value') ?? '500.00';
+        
+    return view('Calendar', compact('sales', 'dailyTarget'));
+}
+
+public function updateSetting(Request $request)
+{
+    $request->validate([
+        'key' => 'required|string',
+        'value' => 'required|numeric|min:0',
+    ]);
+    
+    DB::table('settings')->updateOrInsert(
+        ['key' => $request->key],
+        ['value' => $request->value, 'updated_at' => now()]
+    );
+    
+    return redirect()->back()->with('success', 'Setting updated successfully.');
+}
 }

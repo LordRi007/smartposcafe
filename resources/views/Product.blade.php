@@ -1,529 +1,368 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Product Management</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    
-    :root {
-      --bg-color: #f4f6f9;
-      --card-bg: #fff;
-      --text-color: #333;
-      --sidebar-bg: #2c3e50;
-      --sidebar-color: #ecf0f1;
-    }
+@extends('layouts.app')
 
-    body.dark-mode {
-      --bg-color: #1e1e2f;
-      --card-bg: #2a2a3d;
-      --text-color: #f1f1f1;
-      --sidebar-bg: #111;
-      --sidebar-color: #ccc;
-    }
+@section('title', 'SmartCafe - Products')
+@section('page_title', 'Product Catalog')
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
-
-    body {
-      display: flex;
-      min-height: 100vh;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      transition: background 0.3s, color 0.3s;
-    }
-
-    .sidebar {
-      width: 240px;
-      background-color: var(--sidebar-bg);
-      color: var(--sidebar-color);
-      padding: 20px 0;
-      position: fixed;
-      height: 100vh;
-    }
-
-    .sidebar h2 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .sidebar ul li {
-      padding: 15px 25px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .sidebar ul li:hover {
-      background-color: rgba(255,255,255,0.1);
-    }
-
-    .main {
-      margin-left: 240px;
-      flex: 1;
-      padding: 20px;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      background: var(--card-bg);
-      padding: 15px 25px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      border-radius: 8px;
-    }
-
-    .topbar button {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 5px;
-      background-color: #3498db;
-      color: white;
-      cursor: pointer;
-    }
-
-    .product-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--card-bg);
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .product-table th, .product-table td {
-      padding: 15px;
-      text-align: left;
-      vertical-align: middle;
-    }
-
-    .product-table th {
-      background: #3498db;
-      color: white;
-    }
-
-    .product-table tr:nth-child(even) {
-      background: rgba(0, 0, 0, 0.03);
-    }
-
-    .product-table img {
-      width: 50px;
-      height: 50px;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-
-    .product-table button {
-      margin-right: 5px;
-      padding: 5px 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      color: white;
-    }
-
-    .edit-btn {
-      background-color: #27ae60;
-    }
-
-    .delete-btn {
-      background-color: #e74c3c;
-    }
-
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 450px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      position: relative;
-    }
-
-    .modal-content h3 {
-      margin-bottom: 15px;
-    }
-
-    .modal-content input,
-    .modal-content textarea {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-
-    .modal-content button {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      background-color: #3498db;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 24px;
-      color: white;
-      cursor: pointer;
-    }
-
-    @media (max-width: 700px) {
-      .sidebar {
-        display: none;
-      }
-      .main {
-        margin-left: 0;
-      }
-    }
-    .sidebar {
-  width: 240px;
-  background-color: var(--sidebar-bg);
-  color: var(--sidebar-color);
-  padding: 20px 0;
-  position: fixed;
-  height: 100vh;
-  transition: all 0.3s ease;
-  z-index: 1000;
-}
-
-.sidebar h2 {
-  text-align: center;
-  margin-bottom: 30px;
-  font-size: 24px;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar ul li {
-  padding: 15px 25px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: background 0.2s, padding-left 0.2s;
-}
-
-.sidebar ul li:hover,
-.sidebar ul li.active {
-  background-color: rgba(255, 255, 255, 0.1);
-  padding-left: 30px;
-}
-
-.sidebar ul li i {
-  min-width: 20px;
-  font-size: 16px;
-}
-
-.sidebar-toggle {
-  display: none;
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  background: #3498db;
-  color: white;
-  border: none;
-  padding: 10px 12px;
-  font-size: 18px;
-  border-radius: 6px;
-  z-index: 1001;
-  cursor: pointer;
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    left: -240px;
-  }
-
-  .sidebar.show {
-    left: 0;
-  }
-
-  .sidebar-toggle {
-    display: block;
-  }
-
-  .main {
-    margin-left: 0;
-    padding-top: 60px;
-  }
-}
-
-  </style>
-  
-</head>
-<body>
-
-  <div class="sidebar">
-    <h2><i class="fas fa-coffee"></i> SmartCafe</h2>
-    <ul>
-       <li onclick="location.href='/'"><i class="fas fa-home"></i> Dashboard</li>
-        <li onclick="location.href='/User'"><i class="fas fa-users"></i> Users</li>      
-        <li onclick="location.href='/Product'" class="active"><i  class="fas fa-box"></i> Product</li>
-        <li onclick="location.href='/Invoice'"><i class="fas fa-file-invoice"></i> Invoices</li>
-      <li onclick="location.href='/Pos'"><i class="fas fa-solid fa-store"></i> POS</li>
-        <li onclick="location.href='/Login'"><i class="fas fa-sign-out-alt"></i> Logout</li>
-    </ul>
-  </div>
-
-  <div class="main">
-    <div class="topbar">
-      <h1>Products</h1>
-       @if(session('success'))
-  <div style="padding:10px; background:#d4edda; color:#155724; border:1px solid #c3e6cb;">
-    {{ session('success') }}
-  </div>
-@endif
-
-@if(session('error'))
-  <div style="padding:10px; background:#f8d7da; color:#721c24; border:1px solid #f5c6cb;">
-    {{ session('error') }}
-  </div>
-@endif
-      <button onclick="openModal()">Add Product</button>
+@section('content')
+<!-- Header Actions Area -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div>
+        <h3 class="text-lg font-bold text-slate-950 dark:text-white">Active Product Inventory</h3>
+        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Manage cafe beverages, snacks, toppings, and pricing</p>
     </div>
-
-    <table class="product-table">
-      <thead>
-        <tr>
-           <th>ID</th>
-          <th>Image</th>
-          <th>Name</th>
-          <th>Price ($)</th>
-          <th>Category</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="productTable">
-              @foreach ($pro as $p)
-        <tr data-id="{{ $p->id }}">
-          <td>{{ $p->id }}</td>
-         <td><img src="{{ asset('img/' . $p->img) }}" alt="" style="width: 50px;"></td>
-          <td>{{ $p->name }}</td>
-          <td>{{ $p->price }}</td>
-          <td>{{ $p->cat_id }}</td>
-          <td>
-        <button 
-  class="edit-btn"
-  onclick="editProduct(this)"
-  data-id="{{ $p->id }}"
->
-  Edit
-</button>
-
-
-         <button class="delete-btn" onclick="deleteProduct({{ $p->id }})">Delete</button>
-          </td>
-        </tr>
-      @endforeach
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Add Product Modal -->
-<div class="modal" id="productModal">
-  <div class="modal-content" style="max-width: 400px;">
-    <span class="modal-close" onclick="closeModal()">&times;</span>
-    <form action="/addpro" method="POST" enctype="multipart/form-data">
-      @csrf
-      <h3 style="text-align: center; margin-bottom: 20px;">Add Product</h3>
-
-      <label>Product Image</label>
-      <input type="file" name="img" required>
-
-      <label>Product Name</label>
-      <input type="text" name="name" placeholder="Product Name" required>
-
-      <label>Price</label>
-      <input type="text" name="price" placeholder="Price" required>
-
-     
-      <label>Category</label>
-     <select name="cat_id" required>
-  <option value="" disabled selected>Select Category</option>
-  <option value="1">Ice</option>
-  <option value="2">Hot</option>
-  <option value="3">Frappe</option>
-  <option value="4">Topping</option>
-</select>
-
-
-      
-      <button type="submit" style="margin-top: 15px;">Save Product</button>
-    </form>
-  </div>
+    <button onclick="openAddModal()" class="flex items-center justify-center gap-2 px-5 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+        <i class="fas fa-plus"></i>
+        <span>Add Product</span>
+    </button>
 </div>
 
-
-
-<!-- Edit Product Modal -->
-<div class="modal" id="editProductModal">
-  <div class="modal-content" style="max-width: 400px;">
-    <span class="modal-close" onclick="closeEditModal()">&times;</span>
-    <form id="editProductForm" method="POST" enctype="multipart/form-data">
-      @csrf
-      @method('PUT')
-      <h3 style="text-align: center; margin-bottom: 20px;">Edit Product</h3>
-
-      <input type="hidden" name="id" id="editId">
-
-      <label>Product Image</label>
-      <input type="file" name="img" id="editImg">
-
-      <label>Product Name</label>
-      <input type="text" name="name" id="editName" required>
-
-      <label>Price</label>
-      <input type="text" name="price" id="editPrice" required>
-
-      <label>Category</label>
-      <select name="cat_id" id="editCat" required>
-        <option value="" disabled>Select Category</option>
-        <option value="1">Ice</option>
-        <option value="2">Hot</option>
-        <option value="3">Fapper</option>
-        <option value="4">Topping</option>
-      </select>
-
-      <button type="submit" style="margin-top: 15px;">Update Product</button>
-    </form>
-  </div>
+<!-- Products Table Card -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 rounded-[2rem] overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-left text-sm">
+            <thead>
+                <tr class="border-b border-slate-200/50 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 font-semibold">
+                    <th class="px-6 py-4.5 font-bold">Image</th>
+                    <th class="px-6 py-4.5 font-bold">Product Name</th>
+                    <th class="px-6 py-4.5 font-bold">Price</th>
+                    <th class="px-6 py-4.5 font-bold">Category</th>
+                    <th class="px-6 py-4.5 font-bold text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50">
+                @foreach ($pro as $p)
+                <tr data-id="{{ $p->id }}" class="hover:bg-slate-50/40 dark:hover:bg-slate-800/10 transition-colors duration-150">
+                    <!-- Product Image -->
+                    <td class="px-6 py-4">
+                        <div class="relative w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-800/50">
+                            <img src="{{ asset('img/' . $p->img) }}" alt="{{ $p->name }}" class="w-full h-full object-cover">
+                        </div>
+                    </td>
+                    <!-- Product Name & ID -->
+                    <td class="px-6 py-4">
+                        <span class="font-semibold text-slate-900 dark:text-white block">{{ $p->name }}</span>
+                        <span class="text-xs text-slate-400 dark:text-slate-500">ID: #{{ $p->id }}</span>
+                    </td>
+                    <!-- Product Price -->
+                    <td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">
+                        ${{ number_format($p->price, 2) }}
+                    </td>
+                    <!-- Product Category Badge -->
+                    <td class="px-6 py-4">
+                        @if($p->cat_id == 1)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-50 dark:bg-cyan-950/20 text-cyan-700 dark:text-cyan-400 text-xs font-semibold rounded-full border border-cyan-100 dark:border-cyan-950/30">
+                                <i class="fas fa-snowflake text-[10px]"></i>
+                                Ice
+                            </span>
+                        @elseif($p->cat_id == 2)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 text-xs font-semibold rounded-full border border-amber-100 dark:border-amber-950/30">
+                                <i class="fas fa-mug-hot text-[10px]"></i>
+                                Hot
+                            </span>
+                        @elseif($p->cat_id == 3)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-400 text-xs font-semibold rounded-full border border-purple-100 dark:border-purple-950/30">
+                                <i class="fas fa-blender text-[10px]"></i>
+                                Frappe
+                            </span>
+                        @elseif($p->cat_id == 4)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 text-xs font-semibold rounded-full border border-emerald-100 dark:border-emerald-950/30">
+                                <i class="fas fa-ice-cream text-[10px]"></i>
+                                Topping
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-slate-950/20 text-slate-700 dark:text-slate-400 text-xs font-semibold rounded-full border border-slate-100 dark:border-slate-950/30">
+                                Category: {{ $p->cat_id }}
+                            </span>
+                        @endif
+                    </td>
+                    <!-- Product Actions -->
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <!-- Edit Button -->
+                            <button 
+                                class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-900/50 flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
+                                onclick="editProduct(this)"
+                                data-id="{{ $p->id }}"
+                                data-cat="{{ $p->cat_id }}"
+                            >
+                                <i class="fas fa-pen-to-square text-xs"></i>
+                            </button>
+                            <!-- Delete Button -->
+                            <button 
+                                class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-200 dark:hover:border-rose-900/50 flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
+                                onclick="deleteProduct({{ $p->id }})"
+                            >
+                                <i class="fas fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
 
+<!-- Modal: Add Product -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-md hidden transition-opacity duration-300" id="productModal">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-800/50 transform scale-95 transition-transform duration-300">
+        <!-- Title -->
+        <div class="flex items-center justify-between px-8 py-6 border-b border-slate-200/50 dark:border-slate-800/50">
+            <h3 class="text-xl font-bold text-slate-950 dark:text-white">Add Product</h3>
+            <button onclick="closeAddModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <!-- Form -->
+        <form action="{{ route('product.add') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-5">
+            @csrf
+            
+            <!-- Custom File Upload Area -->
+            <div class="space-y-1.5">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Product Image</span>
+                <label class="flex flex-col items-center justify-center w-full h-40 bg-slate-50 dark:bg-slate-800/40 border-2 border-dashed border-slate-200 dark:border-slate-700/80 rounded-[1.5rem] cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-850/50 transition-colors duration-200 group relative">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6" id="add-upload-placeholder">
+                        <i class="fas fa-cloud-arrow-up text-3xl text-slate-400 group-hover:scale-110 transition-transform duration-200 mb-2"></i>
+                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Upload Image</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">PNG, JPG, WEBP formats</p>
+                    </div>
+                    <img id="add-img-preview" class="w-full h-full object-cover rounded-[1.4rem] absolute inset-0 hidden">
+                    <input type="file" name="img" id="prodImage" required class="hidden" onchange="previewImage(this, 'add-img-preview', 'add-upload-placeholder')">
+                </label>
+            </div>
 
- <script>
-  setTimeout(() => {
-    const alerts = document.querySelectorAll('div[style*="background"]');
-    alerts.forEach(el => el.style.display = 'none');
-  }, 4000); // Hide after 4 seconds
+            <div class="space-y-1.5">
+                <label for="add-name" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Product Name</label>
+                <div class="flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus-within:border-indigo-600 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all duration-200">
+                    <i class="fas fa-mug-hot text-slate-400 ml-4"></i>
+                    <input type="text" name="name" id="add-name" placeholder="Cappuccino" required class="w-full py-3.5 px-4 bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400 font-medium" />
+                </div>
+            </div>
 
-  let imageBase64 = "";
+            <div class="space-y-1.5">
+                <label for="add-price" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Price (USD)</label>
+                <div class="flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus-within:border-indigo-600 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all duration-200">
+                    <i class="fas fa-dollar-sign text-slate-400 ml-4"></i>
+                    <input type="number" step="0.01" name="price" id="add-price" placeholder="2.50" required class="w-full py-3.5 px-4 bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400 font-medium" />
+                </div>
+            </div>
 
-  document.getElementById("prodImage")?.addEventListener("change", function () {
-    const file = this.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        imageBase64 = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+            <div class="space-y-1.5">
+                <label for="add-cat" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Category</label>
+                <div class="flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus-within:border-indigo-600 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all duration-200">
+                    <i class="fas fa-layer-group text-slate-400 ml-4"></i>
+                    <select name="cat_id" id="add-cat" required class="w-full py-3.5 px-4 bg-transparent border-none outline-none text-slate-900 dark:text-white font-medium cursor-pointer">
+                        <option value="" disabled selected class="dark:bg-slate-900 text-slate-400">Select Category</option>
+                        <option value="1" class="dark:bg-slate-900">Ice</option>
+                        <option value="2" class="dark:bg-slate-900">Hot</option>
+                        <option value="3" class="dark:bg-slate-900">Frappe</option>
+                        <option value="4" class="dark:bg-slate-900">Topping</option>
+                    </select>
+                </div>
+            </div>
 
-  function openModal() {
-    document.getElementById('productModal').style.display = 'flex';
-  }
+            <button type="submit" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer mt-2">
+                Save Product
+            </button>
+        </form>
+    </div>
+</div>
 
-  function closeModal() {
-    document.getElementById('productModal').style.display = 'none';
-  }
+<!-- Modal: Edit Product -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-md hidden transition-opacity duration-300" id="editProductModal">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-800/50 transform scale-95 transition-transform duration-300">
+        <!-- Title -->
+        <div class="flex items-center justify-between px-8 py-6 border-b border-slate-200/50 dark:border-slate-800/50">
+            <h3 class="text-xl font-bold text-slate-950 dark:text-white">Edit Product</h3>
+            <button onclick="closeEditModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <!-- Form -->
+        <form id="editProductForm" method="POST" enctype="multipart/form-data" class="p-8 space-y-5">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="id" id="editId">
+            
+            <!-- Custom File Upload Area -->
+            <div class="space-y-1.5">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Replace Product Image</span>
+                <label class="flex flex-col items-center justify-center w-full h-40 bg-slate-50 dark:bg-slate-800/40 border-2 border-dashed border-slate-200 dark:border-slate-700/80 rounded-[1.5rem] cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-850/50 transition-colors duration-200 group relative">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6" id="edit-upload-placeholder">
+                        <i class="fas fa-cloud-arrow-up text-3xl text-slate-400 group-hover:scale-110 transition-transform duration-200 mb-2"></i>
+                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Upload Image</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Leave empty to keep current image</p>
+                    </div>
+                    <img id="edit-img-preview" class="w-full h-full object-cover rounded-[1.4rem] absolute inset-0 hidden">
+                    <input type="file" name="img" id="editImg" class="hidden" onchange="previewImage(this, 'edit-img-preview', 'edit-upload-placeholder')">
+                </label>
+            </div>
 
-  function deleteProduct(id) {
-    if (confirm('Are you sure you want to delete this product?')) {
-        window.location.href = '/Product/delete/' + id;
-    }
-}
+            <div class="space-y-1.5">
+                <label for="editName" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Product Name</label>
+                <div class="flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus-within:border-indigo-600 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all duration-200">
+                    <i class="fas fa-mug-hot text-slate-400 ml-4"></i>
+                    <input type="text" name="name" id="editName" placeholder="Product Name" required class="w-full py-3.5 px-4 bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400 font-medium" />
+                </div>
+            </div>
 
-  function editProduct(button) {
-    const row = button.closest('tr');
-    const id = button.getAttribute("data-id");
-    const name = row.children[2].textContent.trim();
-    const price = row.children[3].textContent.trim();
-    const cat = row.children[4].textContent.trim();
+            <div class="space-y-1.5">
+                <label for="editPrice" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Price (USD)</label>
+                <div class="flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus-within:border-indigo-600 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all duration-200">
+                    <i class="fas fa-dollar-sign text-slate-400 ml-4"></i>
+                    <input type="number" step="0.01" name="price" id="editPrice" placeholder="0.00" required class="w-full py-3.5 px-4 bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400 font-medium" />
+                </div>
+            </div>
 
-    // Set form action dynamically
-    const form = document.getElementById("editProductForm");
-    form.action = `/editpro/${id}`;
+            <div class="space-y-1.5">
+                <label for="editCat" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Category</label>
+                <div class="flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus-within:border-indigo-600 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all duration-200">
+                    <i class="fas fa-layer-group text-slate-400 ml-4"></i>
+                    <select name="cat_id" id="editCat" required class="w-full py-3.5 px-4 bg-transparent border-none outline-none text-slate-900 dark:text-white font-medium cursor-pointer">
+                        <option value="" disabled class="dark:bg-slate-900 text-slate-400">Select Category</option>
+                        <option value="1" class="dark:bg-slate-900">Ice</option>
+                        <option value="2" class="dark:bg-slate-900">Hot</option>
+                        <option value="3" class="dark:bg-slate-900">Frappe</option>
+                        <option value="4" class="dark:bg-slate-900">Topping</option>
+                    </select>
+                </div>
+            </div>
 
-    document.getElementById("editId").value = id;
-    document.getElementById("editName").value = name;
-    document.getElementById("editPrice").value = price;
-    document.getElementById("editCat").value = cat;
+            <button type="submit" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer mt-2">
+                Update Product
+            </button>
+        </form>
+    </div>
+</div>
+@endsection
 
-    // Show modal
-    document.getElementById("editProductModal").style.display = "flex";
-  }
-
-  function closeEditModal() {
-    document.getElementById('editProductModal').style.display = 'none';
-  }
-
-  // SINGLE window.onclick listener to close modals when clicking outside
-  window.onclick = function(event) {
-    const productModal = document.getElementById('productModal');
-    const editProductModal = document.getElementById('editProductModal');
-    
-    if (event.target === productModal) {
-      closeModal();
-    }
-    if (event.target === editProductModal) {
-      closeEditModal();
-    }
-  };
-
-</script>
-
+@section('scripts')
 <script>
-  // Apply stored mode on page load
-  if (localStorage.getItem("mode") === "dark") {
-    document.body.classList.add("dark-mode");
-  }
+    // Preview Image when Selected
+    function previewImage(input, previewId, placeholderId) {
+        const file = input.files[0];
+        const preview = document.getElementById(previewId);
+        const placeholder = document.getElementById(placeholderId);
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = '';
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+        }
+    }
 
-  // Toggle dark mode and store preference
-  function toggleMode() {
-    document.body.classList.toggle("dark-mode");
-    const mode = document.body.classList.contains("dark-mode") ? "dark" : "light";
-    localStorage.setItem("mode", mode);
-  }
-</script>
-<script>
-  function toggleSidebar() {
-    document.querySelector('.sidebar').classList.toggle('show');
-  }
+    // Open Add Product Modal
+    function openAddModal() {
+        const modal = document.getElementById('productModal');
+        const content = modal.querySelector('div');
+        
+        // Reset preview
+        document.getElementById('add-img-preview').classList.add('hidden');
+        document.getElementById('add-upload-placeholder').classList.remove('hidden');
+        modal.classList.remove('hidden');
+        
+        setTimeout(() => {
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+    }
 
-  // Add active class to current menu item
-  document.querySelectorAll('.sidebar ul li').forEach(item => {
-    item.addEventListener('click', () => {
-      document.querySelectorAll('.sidebar ul li').forEach(i => i.classList.remove('active'));
-      item.classList.add('active');
+    // Close Add Product Modal
+    function closeAddModal() {
+        const modal = document.getElementById('productModal');
+        const content = modal.querySelector('div');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 150);
+    }
+
+    // Open Edit Product Modal
+    function openEditModal() {
+        const modal = document.getElementById('editProductModal');
+        const content = modal.querySelector('div');
+        
+        // Reset preview (since edit image might be empty initially)
+        document.getElementById('edit-img-preview').classList.add('hidden');
+        document.getElementById('edit-upload-placeholder').classList.remove('hidden');
+        modal.classList.remove('hidden');
+        
+        setTimeout(() => {
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+    }
+
+    // Close Edit Product Modal
+    function closeEditModal() {
+        const modal = document.getElementById('editProductModal');
+        const content = modal.querySelector('div');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 150);
+    }
+
+    // Delete Product Check
+    function deleteProduct(id) {
+        if (confirm('Are you sure you want to delete this product?')) {
+            window.location.href = '/Product/delete/' + id;
+        }
+    }
+
+    // Set Edit Form action dynamically & populate inputs
+    function editProduct(button) {
+        const row = button.closest('tr');
+        const id = button.getAttribute("data-id");
+        const cat = button.getAttribute("data-cat");
+        
+        const name = row.children[1].querySelector('span').textContent.trim();
+        // Remove dollar sign and any whitespace to extract float value
+        const price = row.children[2].textContent.replace('$', '').trim();
+        
+        // Load original image preview
+        const origImgSrc = row.children[0].querySelector('img').src;
+        const preview = document.getElementById('edit-img-preview');
+        const placeholder = document.getElementById('edit-upload-placeholder');
+        preview.src = origImgSrc;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+
+        // Bind form action
+        const form = document.getElementById("editProductForm");
+        form.action = `/editpro/${id}`;
+
+        document.getElementById("editId").value = id;
+        document.getElementById("editName").value = name;
+        document.getElementById("editPrice").value = price;
+        document.getElementById("editCat").value = cat;
+
+        openEditModal();
+    }
+
+    // Close modals on clicking backdrop
+    window.addEventListener('click', function(event) {
+        const prodModal = document.getElementById('productModal');
+        const editModal = document.getElementById('editProductModal');
+        
+        if (event.target === prodModal) {
+            closeAddModal();
+        }
+        if (event.target === editModal) {
+            closeEditModal();
+        }
     });
-  });
+
+    // Close on Escape Key
+    window.addEventListener('keydown', function(event) {
+        if (event.key === "Escape") {
+            closeAddModal();
+            closeEditModal();
+        }
+    });
 </script>
-
-
-</body>
-</html>
+@endsection
